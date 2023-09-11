@@ -34,8 +34,7 @@ support_bot = SupportBot()
 
 #  -------------------------------------------------------------- ВХОД ТГ ЮЗЕРА
 def get_empty_keyboard():
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    return keyboard
+    return types.ReplyKeyboardMarkup(resize_keyboard=True)
 
 
 def get_phone_keyboard():
@@ -165,12 +164,9 @@ def make_inline_keyboard(
 
 def keyboard_for_message_in_support_chat(
         answers: list) -> types.InlineKeyboardMarkup:
-    keyboard = make_inline_keyboard(
-        question_name='customer_textmessage',
-        answers=answers,
-        data=0
+    return make_inline_keyboard(
+        question_name='customer_textmessage', answers=answers, data=0
     )
-    return keyboard
 
 
 @dp.message_handler(
@@ -181,8 +177,7 @@ async def new_text_message(message: types.Message, state: FSMContext):
     if message.from_user.id in support_bot.get_ban_list():
         return
     log.info('new_text_message_for_support from: %r', message.from_user.id)
-    customer = support_bot.get_customer_by_tg_id(message.from_user.id)
-    if customer:
+    if customer := support_bot.get_customer_by_tg_id(message.from_user.id):
         signature = (
             f'<b>От: 🧑 {customer.get_first_name()} '
             f'{customer.get_last_name()}</b>\n'
@@ -201,11 +196,7 @@ async def new_text_message(message: types.Message, state: FSMContext):
                 [ban_button, unanswered_button])
         )
     if message.content_type == ContentType.PHOTO:
-        if message.caption:
-            text = signature + str(message.caption)
-        else:
-            text = signature
-
+        text = signature + str(message.caption) if message.caption else signature
         support_chat_msg = await bot.send_photo(
             chat_id=SUPPORT_CHAT_ID,
             photo=message.photo[0]['file_id'],
@@ -231,20 +222,13 @@ def get_keyboard_for_current_message(
     """
     tg_user = textmessage.get_tg_user()
 
-    if tg_user.is_banned():
-        first_button = unban_button
-    else:
-        first_button = ban_button
-
+    first_button = unban_button if tg_user.is_banned() else ban_button
     if textmessage.is_answered():
         second_button = answered_button
     else:
         second_button = unanswered_button
 
-    keyboard = keyboard_for_message_in_support_chat(
-        [first_button, second_button]
-    )
-    return keyboard
+    return keyboard_for_message_in_support_chat([first_button, second_button])
 
 
 @dp.message_handler(
