@@ -89,17 +89,14 @@ class SupportBot():
         )
 
     def get_customer_list(self) -> list:
-        customers_tg_ids = self.support_bot_data.get_customer_list()
-        return customers_tg_ids
+        return self.support_bot_data.get_customer_list()
 
     def get_tg_users(self) -> list:
         """Returning not customers tg ids"""
-        not_customers_tg_id = self.support_bot_data.get_tg_users()
-        return not_customers_tg_id
+        return self.support_bot_data.get_tg_users()
 
     def get_ban_list(self) -> list:
-        ban_tg_ids = self.support_bot_data.get_ban_list()
-        return ban_tg_ids
+        return self.support_bot_data.get_ban_list()
 
     def get_textmessage_by(
                 self, support_chat_message_id: int) -> TextMessage | None:
@@ -134,10 +131,7 @@ class TgUser(CacheMixin):
 
     def get_username(self) -> str:
         username = self.tg_data.get_tg_username()
-        if not username:
-            return self.get_tg_id()
-        else:
-            return username
+        return self.get_tg_id() if not username else username
 
     def is_banned(self) -> bool:
         return self.tg_data.is_banned()
